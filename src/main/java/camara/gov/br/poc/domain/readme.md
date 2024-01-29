@@ -1,12 +1,17 @@
 # Camada de Domínio
 
-## Responsabilidade
-Esta camada é responsável pela lógica de negócio e pelas regras do domínio. Ela é o coração do nosso sistema, onde definimos nossas entidades e a lógica que rege como essas entidades interagem entre si.
+## Propósito
+Esta camada é o coração da nossa aplicação. Contém a lógica de negócio central e é independente de outras camadas, como Aplicação e Infraestrutura.
 
-## Conteúdo
-- **Model**: Classes que representam as entidades do domínio.
-- **Repository**: Interfaces que definem os contratos para operações de persistência, independentes de qualquer tecnologia de armazenamento.
+## Responsabilidades
+- **Model**: Representa as entidades de negócio.
+- **Repository**: Interfaces para a persistência de dados.
 
 ## Fronteiras
-- Esta camada **não** deve ter dependências sobre nenhuma outra camada do modelo, como Aplicação, Infraestrutura ou Adaptadores.
-- Ela deve ser independente, contendo a lógica de negócios e regras que não são afetadas por elementos externos.
+- Não deve ter dependências sobre nenhuma outra camada do modelo.
+
+## Ports (Portas)
+- Não há portas definidas nesta camada, pois representa o núcleo do negócio.
+
+## Adapters (Adaptadores)
+- Não há adaptadores nesta camada.

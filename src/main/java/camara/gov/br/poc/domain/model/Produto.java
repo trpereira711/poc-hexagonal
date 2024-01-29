@@ -1,7 +1,5 @@
 package camara.gov.br.poc.domain.model;
 
-import camara.gov.br.poc.infrastructure.persistence.ProdutoEntity;
-
 import java.math.BigDecimal;
 
 public class Produto {
