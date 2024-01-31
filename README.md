@@ -6,10 +6,9 @@ Este projeto implementa a arquitetura hexagonal, também conhecida como "ports a
 ## Estrutura de Diretórios
 O projeto é organizado em várias camadas, cada uma com responsabilidades claramente definidas:
 
-- `domain/`: Núcleo da lógica de negócios.
-- `application/`: Coordena as operações de negócios.
-- `infrastructure/`: Detalhes técnicos como banco de dados e frameworks.
-- `adapters/`: Conecta a aplicação com o mundo externo.
+- `domain/`: 
+- `application/`: 
+- `infrastructure/adapters`: 
 
 ## Arquitetura Hexagonal (Ports and Adapters)
 Na arquitetura hexagonal, o sistema é dividido em uma parte interna e uma parte externa:
@@ -32,8 +31,6 @@ Os adaptadores são implementações concretas das portas. Eles adaptam a comuni
 ## Referências
 - [Arquitetura Hexagonal explicada](https://alistair.cockburn.us/hexagonal-architecture/)
 - [Ports and Adapters Pattern](https://martinfowler.com/articles/patterns-of-distributed-systems/ports-and-adapters.html)
-- [Implementando Arquitetura Hexagonal em Java](https://www.baeldung.com/hexagonal-architecture-ddd-spring)
-
 ---
 
 Este `README.md` serve como uma introdução ao projeto e à arquitetura utilizada, facilitando o entendimento geral do sistema para novos desenvolvedores e interessados.
