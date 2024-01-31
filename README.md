@@ -15,14 +15,14 @@ Então, apresente um desafio: escolha duas formas muito diferentes de interagir 
 Uma vez compreendida a ideia central, então você pode revelar que "a propósito, essa abordagem é geralmente chamada de {escolha seu termo preferido}", e eles terão as ferramentas para realmente entender os detalhes.
 
 Notas de rodapé:
-[0] https://alistair.cockburn.us/hexagonal-architecture/
-[1] https://netflixtechblog.com/ready-for-changes-with-hexagonal-architecture-b315ec967749
-[2] https://www.kennethlange.com/ports-and-adapters/
-[4] http://cleancoder.com/products
-[5] "interface" usado apenas no sentido geral de contrato de API, não no sentido de Interface Java. Parem de escrever tantas interfaces inúteis de uma única vez, pessoal! Interfaces são para abstrações, não concretizações!"
+- [0] https://alistair.cockburn.us/hexagonal-architecture/
+- [1] https://netflixtechblog.com/ready-for-changes-with-hexagonal-architecture-b315ec967749
+- [2] https://www.kennethlange.com/ports-and-adapters/
+- [4] http://cleancoder.com/products
+- [5] "interface" usado apenas no sentido geral de contrato de API, não no sentido de Interface Java. Parem de escrever tantas interfaces inúteis de uma única vez, pessoal! Interfaces são para abstrações, não concretizações!"
 
 ## Referências
-- [Como ensinar Ports and Adpters](https://chriskiehl.com/article/how-to-teach-ports-and-adapters)
+- [how-to-teach-ports-and-adapters](https://chriskiehl.com/article/how-to-teach-ports-and-adapters)
 ---
 
 Este `README.md` serve como uma introdução ao projeto e à arquitetura utilizada, facilitando o entendimento geral do sistema para novos desenvolvedores e interessados.

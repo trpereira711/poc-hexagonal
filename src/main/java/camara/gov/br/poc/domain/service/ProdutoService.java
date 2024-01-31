@@ -1,24 +1,23 @@
 package camara.gov.br.poc.domain.service;
 
-import camara.gov.br.poc.application.ports.input.BuscarProdutoInputPort;
-import camara.gov.br.poc.application.ports.input.CriarProdutoInputPort;
+import camara.gov.br.poc.application.ports.input.ProdutoInputPort;
 import camara.gov.br.poc.application.ports.output.ProdutoOutputPort;
 import camara.gov.br.poc.domain.exception.ProdutoNotFoundException;
 import camara.gov.br.poc.domain.model.Produto;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class ProdutoService implements CriarProdutoInputPort, BuscarProdutoInputPort {
+public class ProdutoService implements ProdutoInputPort {
 
     private final ProdutoOutputPort produtoOutputPort;
 
     @Override
-    public Produto execute(Produto produto) {
+    public Produto criarProduto(Produto produto) {
         return produtoOutputPort.criarProduto(produto);
     }
 
     @Override
-    public Produto execute(Long id) {
+    public Produto buscarProduto(Long id) {
         return produtoOutputPort.buscarPorId(id)
                 .orElseThrow(() -> new ProdutoNotFoundException());
     }
