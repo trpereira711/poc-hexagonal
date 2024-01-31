@@ -30,7 +30,7 @@ Os adaptadores são implementações concretas das portas. Eles adaptam a comuni
 
 ## Referências
 - [Arquitetura Hexagonal explicada](https://alistair.cockburn.us/hexagonal-architecture/)
-- [Ports and Adapters Pattern](https://martinfowler.com/articles/patterns-of-distributed-systems/ports-and-adapters.html)
+- [Como ensinar Ports and Adpters](https://chriskiehl.com/article/how-to-teach-ports-and-adapters)
 ---
 
 Este `README.md` serve como uma introdução ao projeto e à arquitetura utilizada, facilitando o entendimento geral do sistema para novos desenvolvedores e interessados.
