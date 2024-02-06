@@ -1,6 +1,6 @@
-package camara.gov.br.poc.infrastructure.adapters.config;
+package camara.gov.br.poc.infrastructure.config;
 
-import camara.gov.br.poc.domain.service.ProdutoService;
+import camara.gov.br.poc.application.ProdutoPort;
 import camara.gov.br.poc.infrastructure.adapters.output.persistence.ProdutoPersistenceAdapter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class ProdutoConfig {
 
     @Bean
-    ProdutoService produtoService(ProdutoPersistenceAdapter produtoPersistenceAdapter) {
-        return new ProdutoService(produtoPersistenceAdapter);
+    ProdutoPort newProdutoPort(ProdutoPersistenceAdapter produtoPersistenceAdapter) {
+        return new ProdutoPort(produtoPersistenceAdapter);
     }
 }
