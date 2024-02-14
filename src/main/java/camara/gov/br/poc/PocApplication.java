@@ -1,11 +1,10 @@
-package camara.gov.br.poc.infrastructure;
+package camara.gov.br.poc;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages = "camara.gov.br.poc")
 public class PocApplication {
 
 	public static void main(String[] args) {
