@@ -1,0 +1,220 @@
+#!/usr/bin/env groovy
+
+pipeline {
+    agent any
+
+    environment {
+        IMAGEM_DOCKER = 'mkaule/poc-hexagonal'
+        APROVADORES = 'trpereira'
+        EMAILS = 'thiagotecnlogi@gmail.com'
+        JENKINS_LOCAL_URL = 'http://localhost:8080'
+    }
+    tools {
+        maven 'Maven 3.3.9'
+    }
+
+    stages {
+        stage('Check start') {
+            steps {
+                script {
+                    SHOULD_RUN = true;
+                    // Captura o nome do autor do último commit
+                    def commitAuthor = sh(returnStdout: true, script: "git log -1 --pretty=format:'%an'").trim()
+                    def skipUsers = ['Jenkins']
+
+                    if (commitAuthor in skipUsers) {
+                        echo "Commit feito por ${commitAuthor}, interrompendo pipeline."
+                        SHOULD_RUN = false;
+                    }
+                }
+            }
+        }
+        stage('Preparação') {
+            when {
+                expression { return SHOULD_RUN }
+            }
+            steps {
+                checkout scm
+                script {
+                    VERSAO_POM = readMavenPom().getVersion()
+                    echo "Versão extraída do POM: ${VERSAO_POM}"
+                    def branchName = env.BRANCH_NAME
+                    echo "Iniciando build para a branch: ${branchName}"
+                }
+            }
+        }
+        stage('Build') {
+            when {
+                expression { return SHOULD_RUN }
+            }
+            steps {
+                echo 'Compilando o projeto...'
+                sh "mvn -B -U -e -V clean package -DskipTests"
+            }
+        }
+        stage('Testes') {
+            when {
+                expression { return SHOULD_RUN }
+            }
+            steps {
+                echo 'Executando testes...'
+                sh "mvn verify"
+            }
+        }
+        stage('Inspeção Contínua SonarQube') {
+            when {
+                expression { return SHOULD_RUN }
+            }
+            steps {
+                echo 'Executando SonarQube ...'
+            }
+        }
+        stage('Arquivar') {
+            when {
+                expression { return SHOULD_RUN }
+            }
+            steps {
+                archive 'target/poc-hexagonal.jar'
+            }
+        }
+        stage('Imagem Docker') {
+           when {
+               allOf {
+                   expression { return SHOULD_RUN }
+                   not {
+                       branch pattern: "feature/.*|master|main", comparator: "REGEXP"
+                   }
+               }
+           }
+           steps {
+               script {
+                   def version = readMavenPom().getVersion()
+                   withDockerRegistry([credentialsId: 'c34117dc-5fa1-46f8-8ebb-f1cf0b2254c4', url: 'https://index.docker.io/v1/']) {
+                       def imagem = docker.build("${env.IMAGEM_DOCKER}:${version}")
+                       if (env.BRANCH_NAME ==~ /release\/.*/) {
+                           imagem.push("${version}-release")
+                           imagem.push("latest-release")
+                       } else {
+                           imagem.push(version)
+                       }
+                   }
+               }
+           }
+        }
+        stage('Deploy para Desenvolvimento') {
+            when {
+                allOf {
+                    expression { return SHOULD_RUN }
+                    branch 'develop'
+                }
+            }
+            steps {
+                echo 'Deploying para ambiente de desenvolvimento...'
+            }
+        }
+        stage('Preparação Release') {
+            when {
+                allOf {
+                    expression { return SHOULD_RUN }
+                    branch pattern: "release/.*", comparator: "REGEXP"
+                }
+            }
+            steps {
+                echo 'Preparando release...'
+                sh "mvn versions:set -DremoveSnapshot"
+                sshagent(['ssh_git']) {
+                    sh "git add pom.xml"
+                    sh "git commit -am 'Removendo -SNAPSHOT da release'"
+                    sh "rm pom.xml.versionsBackup"
+                    sh "git push origin HEAD:${env.branchName}"
+                }
+            }
+        }
+        stage('Deploy para Homologacao') {
+            when {
+                allOf {
+                    expression { return SHOULD_RUN }
+                    branch 'release'
+                }
+            }
+            steps {
+                echo 'Deploying para ambiente de homologacao...'
+            }
+        }
+        stage('Promover para Produção?') {
+            agent none
+            when {
+                allOf {
+                     expression { return SHOULD_RUN }
+                     branch 'master'
+                }
+            }
+            steps {
+                timeout(10) {
+                    mail to: "${env.EMAILS}",
+                    subject: "Aprovação de Deploy em Produção - Job ${env.JOB_NAME}-${env.BUILD_DISPLAY_NAME}",
+                    body: """Deploy em produção aguardando aprovação do módulo '${env.JOB_NAME}' Build (${env.BUILD_NUMBER}) \nPainel --> ${env.JENKINS_LOCAL_URL} \nAprovação Direta --> ${env.JENKINS_LOCAL_URL}/job/${env.JOB_NAME}/${env.BUILD_NUMBER}/input \nMudanças da Versão --> ${env.JENKINS_LOCAL_URL}/job/${env.JOB_NAME}/${env.BUILD_NUMBER}/"""
+                    script {
+                        aprovador = input message: 'ATENÇÃO! Deseja fazer o deploy em produção?', ok: 'Sim',
+                        submitter: "${env.APROVADORES}", submitterParameter: 'aprovador'
+                        echo "Deploy em produção aprovado por ${aprovador}"
+                    }
+                }
+            }
+        }
+        stage('Deploy para Produção') {
+            when {
+                anyOf {
+                    branch 'master'
+                    branch 'main'
+                }
+            }
+            steps {
+                echo 'Deploying para ambiente de produção usando a última imagem de release...'
+            }
+        }
+        stage('Pós-Release: Preparar para Desenvolvimento') {
+            when {
+                allOf {
+                    expression { return SHOULD_RUN }
+                    branch 'master'
+                }
+            }
+            steps {
+                script {
+                    def currentVersion = readMavenPom().getVersion().replace("-SNAPSHOT", "")
+                    def (major, minor, patch) = currentVersion.tokenize('.').collect { it.toInteger() }
+                    def nextVersion = "${major}.${minor+1}.0-SNAPSHOT"
+                    sh "mvn versions:set -DnewVersion=${nextVersion}"
+                    sh "mvn versions:commit"
+
+                    sshagent(['ssh_git']) {
+                        sh "git add pom.xml"
+                        sh "git commit -am 'Início do desenvolvimento da versão ${nextVersion}'"
+                        sh "git push origin HEAD:develop"
+                    }
+                }
+            }
+        }
+        stage('Hotfix') {
+            when {
+                allOf {
+                    expression { return SHOULD_RUN }
+                    branch pattern: "hotfix/*", comparator: "REGEXP"
+                }
+            }
+            steps {
+                echo 'Executando hotfix...'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Build concluído com sucesso!'
+        }
+        failure {
+            echo 'Build falhou!'
+        }
+    }
+}
